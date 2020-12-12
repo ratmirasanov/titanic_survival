@@ -1,6 +1,15 @@
 import re
 import numpy as np
 import pandas as pd
+from sklearn import linear_model
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import Perceptron
+from sklearn.linear_model import SGDClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC, LinearSVC
+from sklearn.naive_bayes import GaussianNB
 
 
 test_df = pd.read_csv("test.csv")
@@ -9,7 +18,6 @@ train_df = pd.read_csv("train.csv")
 # Data Preprocessing.
 # Remove "PassengerId" column.
 train_df = train_df.drop(["PassengerId"], axis=1)
-test_df = test_df.drop(["PassengerId"], axis=1)
 
 # Remove "Ticket" column.
 train_df = train_df.drop(["Ticket"], axis=1)
@@ -163,4 +171,85 @@ for dataset in data:
     dataset["Fare_Per_Person"] = dataset["Fare"] / (dataset["Relatives"] + 1)
     dataset["Fare_Per_Person"] = dataset["Fare_Per_Person"].astype(int)
 
-print(train_df.head(10))
+# Building Machine Learning Models.
+X_train = train_df.drop("Survived", axis=1)
+Y_train = train_df["Survived"]
+X_test = test_df.drop("PassengerId", axis=1).copy()
+
+# Stochastic Gradient Descent (SGD).
+sgd = linear_model.SGDClassifier(max_iter=5, tol=None)
+sgd.fit(X_train, Y_train)
+Y_pred = sgd.predict(X_test)
+sgd.score(X_train, Y_train)
+acc_sgd = round(sgd.score(X_train, Y_train) * 100, 2)
+
+# Random Forest.
+random_forest = RandomForestClassifier(n_estimators=100)
+random_forest.fit(X_train, Y_train)
+Y_prediction = random_forest.predict(X_test)
+random_forest.score(X_train, Y_train)
+acc_random_forest = round(random_forest.score(X_train, Y_train) * 100, 2)
+
+# Logistic Regression.
+logreg = LogisticRegression()
+logreg.fit(X_train, Y_train)
+Y_pred = logreg.predict(X_test)
+acc_log = round(logreg.score(X_train, Y_train) * 100, 2)
+
+# K Nearest Neighbor.
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_train, Y_train)
+Y_pred = knn.predict(X_test)
+acc_knn = round(knn.score(X_train, Y_train) * 100, 2)
+
+# Gaussian Naive Bayes.
+gaussian = GaussianNB()
+gaussian.fit(X_train, Y_train)
+Y_pred = gaussian.predict(X_test)
+acc_gaussian = round(gaussian.score(X_train, Y_train) * 100, 2)
+
+# Perceptron.
+perceptron = Perceptron(max_iter=5)
+perceptron.fit(X_train, Y_train)
+Y_pred = perceptron.predict(X_test)
+acc_perceptron = round(perceptron.score(X_train, Y_train) * 100, 2)
+
+# Linear Support Vector Machine.
+linear_svc = LinearSVC()
+linear_svc.fit(X_train, Y_train)
+Y_pred = linear_svc.predict(X_test)
+acc_linear_svc = round(linear_svc.score(X_train, Y_train) * 100, 2)
+
+# Decision Tree.
+decision_tree = DecisionTreeClassifier()
+decision_tree.fit(X_train, Y_train)
+Y_pred = decision_tree.predict(X_test)
+acc_decision_tree = round(decision_tree.score(X_train, Y_train) * 100, 2)
+
+results = pd.DataFrame(
+    {
+        "Model": [
+            "Support Vector Machines",
+            "KNN",
+            "Logistic Regression",
+            "Random Forest",
+            "Naive Bayes",
+            "Perceptron",
+            "Stochastic Gradient Decent",
+            "Decision Tree",
+        ],
+        "Score": [
+            acc_linear_svc,
+            acc_knn,
+            acc_log,
+            acc_random_forest,
+            acc_gaussian,
+            acc_perceptron,
+            acc_sgd,
+            acc_decision_tree,
+        ],
+    }
+)
+result_df = results.sort_values(by="Score", ascending=False)
+result_df = result_df.set_index("Score")
+result_df.head(9)

@@ -171,85 +171,31 @@ for dataset in data:
     dataset["Fare_Per_Person"] = dataset["Fare"] / (dataset["Relatives"] + 1)
     dataset["Fare_Per_Person"] = dataset["Fare_Per_Person"].astype(int)
 
+
+# Removing features (after investigation).
+train_df = train_df.drop("Not_Alone", axis=1)
+test_df = test_df.drop("Not_Alone", axis=1)
+train_df = train_df.drop("Parch", axis=1)
+test_df = test_df.drop("Parch", axis=1)
+
+
 # Building Machine Learning Models.
 X_train = train_df.drop("Survived", axis=1)
 Y_train = train_df["Survived"]
 X_test = test_df.drop("PassengerId", axis=1).copy()
 
-# Stochastic Gradient Descent (SGD).
-sgd = linear_model.SGDClassifier(max_iter=5, tol=None)
-sgd.fit(X_train, Y_train)
-Y_pred = sgd.predict(X_test)
-sgd.score(X_train, Y_train)
-acc_sgd = round(sgd.score(X_train, Y_train) * 100, 2)
-
 # Random Forest.
-random_forest = RandomForestClassifier(n_estimators=100)
+random_forest = RandomForestClassifier(n_estimators=100, oob_score=True)
 random_forest.fit(X_train, Y_train)
 Y_prediction = random_forest.predict(X_test)
 random_forest.score(X_train, Y_train)
 acc_random_forest = round(random_forest.score(X_train, Y_train) * 100, 2)
-
-# Logistic Regression.
-logreg = LogisticRegression()
-logreg.fit(X_train, Y_train)
-Y_pred = logreg.predict(X_test)
-acc_log = round(logreg.score(X_train, Y_train) * 100, 2)
-
-# K Nearest Neighbor.
-knn = KNeighborsClassifier(n_neighbors=3)
-knn.fit(X_train, Y_train)
-Y_pred = knn.predict(X_test)
-acc_knn = round(knn.score(X_train, Y_train) * 100, 2)
-
-# Gaussian Naive Bayes.
-gaussian = GaussianNB()
-gaussian.fit(X_train, Y_train)
-Y_pred = gaussian.predict(X_test)
-acc_gaussian = round(gaussian.score(X_train, Y_train) * 100, 2)
-
-# Perceptron.
-perceptron = Perceptron(max_iter=5)
-perceptron.fit(X_train, Y_train)
-Y_pred = perceptron.predict(X_test)
-acc_perceptron = round(perceptron.score(X_train, Y_train) * 100, 2)
-
-# Linear Support Vector Machine.
-linear_svc = LinearSVC()
-linear_svc.fit(X_train, Y_train)
-Y_pred = linear_svc.predict(X_test)
-acc_linear_svc = round(linear_svc.score(X_train, Y_train) * 100, 2)
-
-# Decision Tree.
-decision_tree = DecisionTreeClassifier()
-decision_tree.fit(X_train, Y_train)
-Y_pred = decision_tree.predict(X_test)
-acc_decision_tree = round(decision_tree.score(X_train, Y_train) * 100, 2)
-
-results = pd.DataFrame(
-    {
-        "Model": [
-            "Support Vector Machines",
-            "KNN",
-            "Logistic Regression",
-            "Random Forest",
-            "Naive Bayes",
-            "Perceptron",
-            "Stochastic Gradient Decent",
-            "Decision Tree",
-        ],
-        "Score": [
-            acc_linear_svc,
-            acc_knn,
-            acc_log,
-            acc_random_forest,
-            acc_gaussian,
-            acc_perceptron,
-            acc_sgd,
-            acc_decision_tree,
-        ],
-    }
-)
-result_df = results.sort_values(by="Score", ascending=False)
-result_df = result_df.set_index("Score")
-print(result_df.head(9))
+# print(
+#     round(
+#         acc_random_forest,
+#         2,
+#     ),
+#     "%",
+# )
+# print("Oob score: ", round(random_forest.oob_score_, 4) * 100, "%")
+print(Y_prediction)

@@ -252,4 +252,4 @@ results = pd.DataFrame(
 )
 result_df = results.sort_values(by="Score", ascending=False)
 result_df = result_df.set_index("Score")
-result_df.head(9)
+print(result_df.head(9))
